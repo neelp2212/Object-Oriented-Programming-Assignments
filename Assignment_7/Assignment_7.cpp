@@ -6,30 +6,14 @@
 #include <functional>
 using namespace std;
 
-int randGen_1()
-{
-    return rand() % 10 + 1;
-}
-//Function object
 class RandGen_2
 {
 public:
-    RandGen_2()
-    {
-        cout << "function called" << endl;
-        srand(time(NULL));
-    }
-    RandGen_2(int start, int end)
+    RandGen_2(int start, int end) : m_Start(start), m_End(end), numbers()
     {
         srand(time(0));
-        m_Start = start;
-        m_End = end;
     }
     int operator()(int start, int end);
-
-    void print()
-    {
-    }
 
 private:
     int m_Start;
@@ -55,22 +39,25 @@ int RandGen_2::operator()(int start, int end)
 
 int main()
 {
-
     while (1)
     {
         vector<int> lotto_numbers(7);
         vector<int> viking_lotto_numbers(6);
         vector<int> euro_jackpot_numbers(5);
         generate(lotto_numbers.begin(), lotto_numbers.end(), bind(RandGen_2(1, 40), 1, 40));
+        sort(lotto_numbers.begin(), lotto_numbers.end());
         cout << "Lotto : ";
         for (auto n : lotto_numbers)
             cout << n << " ";
         cout << endl;
+
         generate(viking_lotto_numbers.begin(), viking_lotto_numbers.end(), bind(RandGen_2(1, 48), 1, 48));
+        sort(viking_lotto_numbers.begin(), viking_lotto_numbers.end());
         cout << "Viking lotto : ";
         for (auto n : viking_lotto_numbers)
             cout << n << " ";
         cout << endl;
+
         cout << "Matching numbers: " << endl;
         vector<int> matching_numbers(7);
         auto it = set_intersection(lotto_numbers.begin(),
@@ -81,12 +68,13 @@ int main()
         matching_numbers.resize(it - matching_numbers.begin());
         int i = 0;
         for_each(matching_numbers.begin(), matching_numbers.end(), [&i](int number)
-                 {
-                     cout << "#" << i + 1 << ": " << number << endl;
-                     i++;
-                 });
+        {
+            cout << "#" << i + 1 << ": " << number << endl;
+            i++;
+        });
 
         generate(euro_jackpot_numbers.begin(), euro_jackpot_numbers.end(), bind(RandGen_2(1, 50), 1, 50));
+        sort(euro_jackpot_numbers.begin(), euro_jackpot_numbers.end());
         cout << "EuroJackpot : ";
         for (auto n : euro_jackpot_numbers)
             cout << n << " ";
@@ -94,18 +82,19 @@ int main()
 
         cout << "Matching numbers in three sets :" << endl;
         vector<int> match_set_3(5);
-        auto iterator = set_intersection(matching_numbers.begin(),
-                                         matching_numbers.end(),
-                                         euro_jackpot_numbers.begin(),
-                                         euro_jackpot_numbers.end(),
-                                         match_set_3.begin());
-        match_set_3.resize(iterator - match_set_3.begin());
+        it = set_intersection(matching_numbers.begin(),
+                              matching_numbers.end(),
+                              euro_jackpot_numbers.begin(),
+                              euro_jackpot_numbers.end(),
+                              match_set_3.begin());
+        match_set_3.resize(it - match_set_3.begin());
         i = 0;
         for_each(match_set_3.begin(), match_set_3.end(), [&i](int number)
-                 {
-                     cout << "#" << i + 1 << ": " << number << endl;
-                     i++;
-                 });
+        {
+            cout << "#" << i + 1 << ": " << number << endl;
+            i++;
+        });
+
         string str;
         cout << "Do you want to continue? ( yes / no ) " << endl;
         cin >> str;
